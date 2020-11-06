@@ -10,6 +10,8 @@ import { getObjType, replaceHtml, getByteLen } from '../utils/util';
 import { getSheetIndex } from '../methods/get';
 import Store from '../store';
 import locale from '../locale/locale';
+import editor from '../global/editor';
+import imageCtrl from './imageCtrl' 
 
 const server = {
     gridKey: null,
@@ -239,7 +241,8 @@ const server = {
 	        file.data[r][c] = value;
 
 	        if(index == Store.currentSheetIndex){//更新数据为当前表格数据
-	            Store.flowdata = file.data;
+				Store.flowdata = file.data;
+				editor.webWorkerFlowDataCache(Store.flowdata)//worker存数据a
 
 	            //如果更新的单元格有批注
 	            if(value != null && value.ps != null){
@@ -322,7 +325,15 @@ const server = {
 
 	        if(k == "name"){ //工作表名
 	            $("#luckysheet-sheet-container-c #luckysheet-sheets-item" + index).find("span.luckysheet-sheets-item-name").html(value);
-	        }
+	        }else if( k == 'images'){//图片操作
+				if(index==Store.currentSheetIndex){
+					imageCtrl.images=value
+					imageCtrl.allImagesShow()
+					imageCtrl.init()
+				}else{
+					Store.luckysheetfile[getSheetIndex(index)]
+				}
+			}
 	        else if(k == "color"){ //工作表颜色
 	            let currentSheetItem = $("#luckysheet-sheet-container-c #luckysheet-sheets-item" + index);
 	            currentSheetItem.find(".luckysheet-sheets-item-color").remove();
